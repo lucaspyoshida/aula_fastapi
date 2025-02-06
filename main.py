@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from enum import Enum
-
+from metar import lermetar
 
 
 
@@ -80,3 +80,18 @@ def operacao_matematica(operacao_dados: OperacaoMatematica):
     elif operacao_dados.operacao == TipoOperacao.divisao:
         resultado = operacao_dados.numero1 / operacao_dados.numero2
     return {"resultado": resultado} 
+
+class DadosMetar(BaseModel):
+    metar:str
+    key: str
+
+
+key = "d005ff24-81ac-41ea-b89d-6a5a3e460aa5"
+
+@app.post("/metar")
+def metar(dados_metar: DadosMetar):
+    if dados_metar.key == key:
+        res = lermetar(dados_metar.metar)
+        return res
+    else:
+        return {"error": "Chave de acesso inválida"}

@@ -52,44 +52,50 @@ Saída esperada JSON:
   "nuvens": ["FEW049", "BKN080"],
   "temperatura": "25",
   "ponto_de_orvalho": "20",
-  "pressao": "1014"
+  "pressao": "1014",
+  "texto": "Em SBGR, às 20:00Z do dia 05, vento de 350° a 06 nós, visibilidade acima de 10 km, algumas nuvens a 4.900 pés e céu parcialmente encoberto a 8.000 pés, temperatura de 25°C, ponto de orvalho a 20°C e pressão de 1014 hPa."
 }
 """
 
-metar = "METAR SBBR 052000Z 05008KT 360V100 9999 SCT030 FEW045TCU SCT070 29/15 Q1015="
+def lermetar(metar):
+  response = client.chat.completions.create(
+      model="deepseek-chat",
+      messages=[
+          {"role": "system", "content": orientacoes},
+          {"role":"assistant","content":exemplo},
+          {"role": "user", "content": "Analise a mensagem a seguir: " + metar},
+      ],
+      stream=False,
+      temperature=0
+  )
+  class Vento(BaseModel):
+      direcao: str
+      velocidade: str
+      variacao: Optional[str] = None  # Pode ser None se não houver variaçã
+      
+  class MetarData(BaseModel):
+      tipo: str
+      estacao: str
+      data_hora: str
+      vento: Vento
+      visibilidade: str
+      nuvens: List[str]
+      temperatura: str
+      ponto_de_orvalho: str
+      pressao: str
+      texto: str
 
-response = client.chat.completions.create(
-    model="deepseek-chat",
-    messages=[
-        {"role": "system", "content": orientacoes},
-        {"role":"assistant","content":exemplo},
-        {"role": "user", "content": "Analise a mensagem a seguir: " + metar},
-    ],
-    stream=False,
-    temperature=0
-)
-class Vento(BaseModel):
-    direcao: str
-    velocidade: str
-    variacao: Optional[str] = None  # Pode ser None se não houver variaçã
-    
-class MetarData(BaseModel):
-    tipo: str
-    estacao: str
-    data_hora: str
-    vento: Vento
-    visibilidade: str
-    nuvens: List[str]
-    temperatura: str
-    ponto_de_orvalho: str
-    pressao: str
+  resposta = response.choices[0].message.content
 
-resposta = response.choices[0].message.content
-print(resposta)
+  try:
+      data = json.loads(resposta)
+      metar_data = MetarData(**data)
+      return metar_data.model_dump_json(indent=2)
+  except Exception as e:
+      return "Erro de validação:", e
 
-try:
-    data = json.loads(resposta)
-    metar_data = MetarData(**data)
-    print(metar_data.model_dump_json(indent=2))
-except Exception as e:
-    print("Erro de validação:", e)
+
+
+# metarteste = "METAR SBBR 052000Z 05008KT 360V100 9999 SCT030 FEW045TCU SCT070 29/15 Q1015="
+
+# print(lermetar(metarteste))
