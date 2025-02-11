@@ -1,8 +1,8 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from enum import Enum
-from metar import lermetar
 
+from fastapi import FastAPI, Depends
+from utils import commom_verificacao_api_token
+import routers
+from metar import lermetar
 
 
 app = FastAPI(
@@ -12,28 +12,16 @@ app = FastAPI(
  version="0.1",
  terms_of_service="http://example.com/terms/",
  contact={
- "name": "Rogério Rodrigues Carvalho",
- "url": "http://github.com/rogerior/",
- "email": "rogerior@ufg.br",
+ "name": "Lucas Pacheco Yoshida",
+ "url": "http://github.com/lucaspyoshida/",
+ "email": "lucaspyoshida@hotmail.com",
  },
  license_info={
  "name": "Apache 2.0",
  "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
  },    
+ dependencies=[Depends(commom_verificacao_api_token)],
 )
 
 
-class DadosMetar(BaseModel):
-    metar:str
-    key: str
-
-
-key = "d005ff24-81ac-41ea-b89d-6a5a3e460aa5"
-
-@app.post("/metar")
-def metar(dados_metar: DadosMetar):
-    if dados_metar.key == key:
-        res = lermetar(dados_metar.metar)
-        return res
-    else:
-        return {"error": "Chave de acesso inválida"}
+app.include_router(routers.router)

@@ -1,13 +1,7 @@
-from dotenv import load_dotenv
-from openai import OpenAI
-import os
-from pydantic import BaseModel
-from typing import List, Optional
 import json
+from models import MetarData
+from utils import chamar_llm
 
-load_dotenv()
-
-client = OpenAI(api_key=os.getenv("api_key"), base_url="https://api.deepseek.com")
 
 orientacoes = """
 Você é um assistente especialista em meteorologia e interpretação de mensagens METAR. Sua tarefa é analisar uma mensagem METAR, extrair os principais elementos e retornar os dados em formato JSON, com uma chave para cada informação.
@@ -58,44 +52,18 @@ Saída esperada JSON:
 """
 
 def lermetar(metar):
-  response = client.chat.completions.create(
-      model="deepseek-chat",
-      messages=[
-          {"role": "system", "content": orientacoes},
-          {"role":"assistant","content":exemplo},
-          {"role": "user", "content": "Analise a mensagem a seguir: " + metar},
-      ],
-      stream=False,
-      temperature=0
-  )
-  class Vento(BaseModel):
-      direcao: str
-      velocidade: str
-      variacao: Optional[str] = None  # Pode ser None se não houver variaçã
-      
-  class MetarData(BaseModel):
-      tipo: str
-      estacao: str
-      data_hora: str
-      vento: Vento
-      visibilidade: str
-      nuvens: List[str]
-      temperatura: str
-      ponto_de_orvalho: str
-      pressao: str
-      texto: str
+  messages=[
+      {"role": "system", "content": orientacoes},
+      {"role":"assistant","content":exemplo},
+      {"role": "user", "content": "Analise a mensagem a seguir: " + metar},
+  ]
 
-  resposta = response.choices[0].message.content
+
+  resposta = chamar_llm(messages)
 
   try:
       data = json.loads(resposta)
       metar_data = MetarData(**data)
-      return metar_data.model_dump_json(indent=2)
+      return metar_data
   except Exception as e:
       return "Erro de validação:", e
-
-
-
-# metarteste = "METAR SBBR 052000Z 05008KT 360V100 9999 SCT030 FEW045TCU SCT070 29/15 Q1015="
-
-# print(lermetar(metarteste))
