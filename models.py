@@ -21,3 +21,14 @@ class MetarData(BaseModel):
     ponto_de_orvalho: str
     pressao: str
     texto: str
+    
+class DadosDefinir(BaseModel):
+    termo: str
+    
+
+class Definicao(BaseModel):
+    contexto: str
+    significado: str
+
+class ListaDefinicoes(BaseModel):
+    definicoes: List[Definicao]

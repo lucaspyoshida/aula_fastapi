@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI, Depends
 from utils import commom_verificacao_api_token
-from routers import metar
+from routers import metar,definir
 
 
 
@@ -25,3 +25,5 @@ app = FastAPI(
 
 
 app.include_router(metar.router)
+
+app.include_router(definir.router)
