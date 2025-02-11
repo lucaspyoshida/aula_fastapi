@@ -1,6 +1,28 @@
 import json
 from models import MetarData
-from utils import chamar_llm
+from utils import chamar_llm, obter_logger_e_configuracao
+from fastapi import APIRouter
+from models import DadosMetar, MetarData
+
+logger = obter_logger_e_configuracao()
+
+router = APIRouter()
+
+@router.post("/metar/v1", response_model = MetarData)
+def metar(dados_metar: DadosMetar):
+    """
+    Processa uma string METAR e retorna os dados decodificados.
+
+    Args:
+        dados_metar (DadosMetar): Objeto contendo a string METAR e a chave de acesso.
+
+    Returns:
+        dict: Dados decodificados do METAR ou mensagem de erro se a chave for inválida.
+    """
+    logger.info(f"METAR enviado: {dados_metar.metar}")
+    res = lermetar(dados_metar.metar)
+    return res
+
 
 
 orientacoes = """

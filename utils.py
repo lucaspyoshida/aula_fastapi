@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
+import logging
 
 load_dotenv()
 
@@ -8,6 +9,18 @@ API_TOKEN = os.getenv("API_TOKEN")
 
 client = OpenAI(api_key=os.getenv("API_KEY"), base_url="https://api.deepseek.com")
 
+def obter_logger_e_configuracao():
+    """
+    Configura o logger padrão para o nível de informação e formato especificado.
+
+    Retorna:
+        logging.Logger: Um objeto de logger com as configurações padrões.
+    """
+    logging.basicConfig(
+        level=logging.INFO, format="[%(levelname)s] %(asctime)s - %(message)s"
+    )
+    logger = logging.getLogger("fastapi")
+    return logger
 
 def commom_verificacao_api_token(api_token: str):
     """

@@ -1,8 +1,8 @@
 
 from fastapi import FastAPI, Depends
 from utils import commom_verificacao_api_token
-import routers
-from metar import lermetar
+from routers import metar
+
 
 
 app = FastAPI(
@@ -24,4 +24,4 @@ app = FastAPI(
 )
 
 
-app.include_router(routers.router)
+app.include_router(metar.router)
