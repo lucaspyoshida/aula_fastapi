@@ -32,10 +32,10 @@ def metar(dados_metar: DadosMetar):
   if "METAR" not in dados_metar.metar:
     raise HTTPException(status_code=400, detail="A string fornecida não contém a palavra 'METAR'.")
 
-  padrao_icao = r"^[A-Z]{4} "  # Quatro letras maiúsculas seguidas de espaço
+  padrao_icao = r"\s[A-Z]{4}\s"  # Quatro letras maiúsculas seguidas de espaço
 
-  if not re.match(padrao_icao, dados_metar.metar):
-      raise HTTPException(status_code=400, detail="Formato de METAR inválido. Deve começar com um identificador ICAO de 4 letras.")
+  if not re.search(padrao_icao, dados_metar.metar):
+      raise HTTPException(status_code=400, detail="Código ICAO não encontrado.")
 
 
   res = lermetar(dados_metar.metar)
