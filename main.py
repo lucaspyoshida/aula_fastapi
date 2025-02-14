@@ -10,7 +10,6 @@ app = FastAPI(
  description="description",
  summary="API desenvolvida durante a aula de Construção de APIs para IA",
  version="0.1",
- terms_of_service="http://example.com/terms/",
  contact={
  "name": "Lucas Pacheco Yoshida",
  "url": "http://github.com/lucaspyoshida/",
