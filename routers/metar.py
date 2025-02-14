@@ -1,5 +1,5 @@
 import json
-from utils import chamar_llm, obter_logger_e_configuracao
+from utils import chamar_llm, obter_logger_e_configuracao, extrair_json
 from fastapi import APIRouter
 from models import DadosMetar, MetarData
 from fastapi import HTTPException
@@ -114,6 +114,7 @@ def lermetar(metar):
   resposta = chamar_llm(messages)
 
   try:
+      resposta = extrair_json(resposta)
       data = json.loads(resposta)
       prob = acharprob(metar)
       logger.info(f"Probabilidade de precipitação: {prob}")

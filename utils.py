@@ -58,3 +58,17 @@ def chamar_llm(messages):
     logger.info(f"Resposta LLM: {resposta}")
     return resposta
     
+def extrair_json(texto):
+    inicio = texto.find('{')
+    if inicio == -1:
+        return None  # Não encontrou uma chave de abertura
+
+    contador = 0
+    for i in range(inicio, len(texto)):
+        if texto[i] == '{':
+            contador += 1
+        elif texto[i] == '}':
+            contador -= 1
+            if contador == 0:
+                return texto[inicio:i+1]
+    return None
