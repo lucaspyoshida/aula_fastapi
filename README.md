@@ -18,7 +18,7 @@ A API "Auxílio Aeronáutico" desenvolvida com FastAPI é projetada para interpr
 3. Ative o ambiente virtual:
     - No Windows:
         ```bash
-        .\venv\Scripts\activate
+        .\venv\Scripts\activate.bat
         ```
     - No Linux/MacOS:
         ```bash
