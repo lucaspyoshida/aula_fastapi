@@ -1,6 +1,6 @@
 # Aula FastAPI
 
-A API "Auxílio Aeronáutico" desenvolvida com FastAPI é projetada para interpretar mensagens METAR, definir termos aeronáuticos e transcrever frases complexas em termos simples. Ela oferece endpoints para processar e decodificar mensagens METAR, fornecendo dados estruturados em formato JSON, além de permitir a busca por definições de termos aeronáuticos em diferentes contextos e a transcrição de frases técnicas para uma linguagem mais acessível. A API é útil para profissionais da aviação e entusiastas que precisam de assistência na interpretação de informações meteorológicas e terminologia aeronáutica.
+A API "Auxílio Aeronáutico" desenvolvida com FastAPI é projetada para interpretar mensagens METAR, definir termos aeronáuticos e transcrever frases complexas em termos simples. Ela oferece endpoints para processar e decodificar mensagens METAR, fornecendo dados estruturados em formato JSON em que há além dos dados da mensagem, a transcrição da mensagem em um linguagem acessível e a probabilidade de avistamento de pássaro para a condição atual. A API permite também a busca por definições de termos aeronáuticos em diferentes contextos e a transcrição de frases técnicas para uma linguagem mais acessível. A API é útil para profissionais da aviação e entusiastas que precisam de assistência na interpretação de informações meteorológicas e terminologia aeronáutica.
 
 ## Instalação
 
