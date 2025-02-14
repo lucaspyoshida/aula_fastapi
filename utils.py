@@ -54,5 +54,7 @@ def chamar_llm(messages):
         temperature=0
     )
     resposta = response.choices[0].message.content
+    logger = obter_logger_e_configuracao()
+    logger.info(f"Resposta LLM: {resposta}")
     return resposta
     

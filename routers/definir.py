@@ -2,11 +2,17 @@ from utils import chamar_llm, obter_logger_e_configuracao
 from models import ListaDefinicoes, DadosDefinir
 from fastapi import APIRouter
 import json
+from fastapi import HTTPException
 
 router = APIRouter()
 logger = obter_logger_e_configuracao()
 
-@router.post("/definir/v1", response_model = ListaDefinicoes)
+@router.post("/definir/v1", 
+            response_model=ListaDefinicoes,
+            summary="Definir Termo Aeronáutico",
+            description="Recebe um termo aeronáutico e retorna suas definições em diferentes contextos.",
+            tags=["Definições"]
+            )
 def definir(dados: DadosDefinir):
     """
     Define um termo solicitado.
@@ -15,7 +21,7 @@ def definir(dados: DadosDefinir):
       dados (DadosDefinir): Objeto contendo o termo a ser definido.
 
     Returns:
-      str: Definição do termo solicitado.
+      str: Definição do termo solicitado de acordo com um contexto.
     """
     logger.info(f"Termo solicitado: {dados.termo}")
     res = definirtermo(dados.termo)
@@ -62,7 +68,7 @@ def definirtermo(termo):
       data = json.loads(resposta)
       if not isinstance(data, list) or not all("contexto" in item and "significado" in item for item in data):
         raise ValueError      
-    except:
+    except(json.JSONDecodeError, ValueError):
       raise HTTPException(status_code=500, detail="Erro ao processar a resposta do LLM. Verifique o formato informado.")
     return {"definicoes": data}
  

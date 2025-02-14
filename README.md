@@ -30,6 +30,8 @@ Este é um projeto de exemplo utilizando FastAPI.
     pip install -r requirements.txt
     ```
 
+5. Preencha as keys conforme o exemplo em `.env.sample` e renomeie o arquivo para `.env`.
+
 ## Executando a API
 
 1. Inicie o servidor FastAPI:

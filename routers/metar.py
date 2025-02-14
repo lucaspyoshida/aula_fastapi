@@ -3,26 +3,41 @@ from utils import chamar_llm, obter_logger_e_configuracao
 from fastapi import APIRouter
 from models import DadosMetar, MetarData
 from fastapi import HTTPException
+import re
 
 logger = obter_logger_e_configuracao()
 
 router = APIRouter()
 
-@router.post("/metar/v1", response_model = MetarData)
+@router.post("/metar/v1", response_model = MetarData,
+            summary="Processa uma mensagem METAR",
+            description="Recebe uma string METAR, decodifica e retorna os dados estruturados em formato JSON.",
+            tags=["Meteorologia"]
+            )
 def metar(dados_metar: DadosMetar):
   """
   Processa uma string METAR e retorna os dados decodificados.
 
   Args:
-      dados_metar (DadosMetar): Objeto contendo a string METAR e a chave de acesso.
+      dados_metar (DadosMetar): Objeto contendo a string METAR.
 
   Returns:
-      dict: Dados decodificados do METAR ou mensagem de erro se a chave for inválida.
+      dict: Dados decodificados do METAR e um texto interpretando a mensagem.
+      
+  Raises:
+    HTTPException: Se a string fornecida não contiver a palavra 'METAR'.
+    HTTPException: Se o formato do METAR for inválido (não começar com um identificador ICAO de 4 letras).      
     """
   logger.info(f"METAR enviado: {dados_metar.metar}")
   if "METAR" not in dados_metar.metar:
     raise HTTPException(status_code=400, detail="A string fornecida não contém a palavra 'METAR'.")
-    return {"message": "METAR encontrado!"}   
+
+  padrao_icao = r"^[A-Z]{4} "  # Quatro letras maiúsculas seguidas de espaço
+
+  if not re.match(padrao_icao, dados_metar.metar):
+      raise HTTPException(status_code=400, detail="Formato de METAR inválido. Deve começar com um identificador ICAO de 4 letras.")
+
+
   res = lermetar(dados_metar.metar)
   return res
 

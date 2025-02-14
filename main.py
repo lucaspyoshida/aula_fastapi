@@ -6,12 +6,12 @@ from routers import metar,definir
 
 
 app = FastAPI(
- title="Aula",
- description="description",
- summary="API desenvolvida durante a aula de Construção de APIs para IA",
+ title="Auxílio Aeronáutico",
+ description="API destinada a interpretação de METAR e busca por definições de termos aeronáuticos.",
+ summary="API desenvolvida durante a aula de Construção de APIs para IA.",
  version="0.1",
  contact={
- "name": "Lucas Pacheco Yoshida",
+ "name": "Lucas Yoshida",
  "url": "http://github.com/lucaspyoshida/",
  "email": "lucaspyoshida@hotmail.com",
  },
