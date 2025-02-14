@@ -6,7 +6,7 @@ Este é um projeto de exemplo utilizando FastAPI.
 
 1. Clone o repositório:
     ```bash
-    git clone https://github.com/seu-usuario/aula_fastapi.git
+    git clone https://github.com/lucaspyoshida/aula_fastapi
     cd aula_fastapi
     ```
 
@@ -44,15 +44,6 @@ Este é um projeto de exemplo utilizando FastAPI.
 
 - `main.py`: Arquivo principal da aplicação FastAPI.
 - `requirements.txt`: Arquivo com as dependências do projeto.
+- `models.py`: Define os modelos de dados utilizados pela aplicação.
+- `utils.py`: Funções utilitárias usadas na aplicação.
 
-## Contribuição
-
-1. Faça um fork do projeto.
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`).
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`).
-4. Faça push para a branch (`git push origin feature/nova-feature`).
-5. Abra um Pull Request.
-
-## Licença
-
-Este projeto está licenciado sob os termos da licença MIT.

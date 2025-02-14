@@ -1,5 +1,4 @@
 import json
-from models import MetarData
 from utils import chamar_llm, obter_logger_e_configuracao
 from fastapi import APIRouter
 from models import DadosMetar, MetarData

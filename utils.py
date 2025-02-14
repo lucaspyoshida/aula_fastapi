@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 from openai import OpenAI
 import logging
+from fastapi import HTTPException
 
 load_dotenv()
 
