@@ -32,3 +32,10 @@ class Definicao(BaseModel):
 
 class ListaDefinicoes(BaseModel):
     definicoes: List[Definicao]
+    
+class DadosFrase(BaseModel):
+    frase: str
+    
+class ResFrase(BaseModel):
+    contexto: str
+    transcrito: str

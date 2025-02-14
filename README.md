@@ -1,6 +1,6 @@
 # Aula FastAPI
 
-Este é um projeto de exemplo utilizando FastAPI.
+A API "Auxílio Aeronáutico" desenvolvida com FastAPI é projetada para interpretar mensagens METAR, definir termos aeronáuticos e transcrever frases complexas em termos simples. Ela oferece endpoints para processar e decodificar mensagens METAR, fornecendo dados estruturados em formato JSON, além de permitir a busca por definições de termos aeronáuticos em diferentes contextos e a transcrição de frases técnicas para uma linguagem mais acessível. A API é útil para profissionais da aviação e entusiastas que precisam de assistência na interpretação de informações meteorológicas e terminologia aeronáutica.
 
 ## Instalação
 
@@ -50,4 +50,5 @@ Este é um projeto de exemplo utilizando FastAPI.
 - `utils.py`: Funções utilitárias usadas na aplicação.
 - `/routers/definir.py`: Função para definir termo aeronáutico
 - `/routers/metar.py`: Função para interpretar METAR
+- `/routers/frase.py`: Função para transcrever uma frase de termos complexos em termos simples
 

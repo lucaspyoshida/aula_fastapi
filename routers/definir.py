@@ -1,3 +1,10 @@
+import sys
+import os
+
+# Adiciona o diretório pai ao sys.path para que o Python possa encontrar o módulo utils.py
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
 from utils import chamar_llm, obter_logger_e_configuracao
 from models import ListaDefinicoes, DadosDefinir
 from fastapi import APIRouter
@@ -9,7 +16,7 @@ logger = obter_logger_e_configuracao()
 
 @router.post("/definir/v1", 
             response_model=ListaDefinicoes,
-            summary="Definir Termo Aeronáutico",
+            summary="Definir termos aeronáuticos",
             description="Recebe um termo aeronáutico e retorna suas definições em diferentes contextos.",
             tags=["Definições"]
             )
