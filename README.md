@@ -34,7 +34,7 @@ Este é um projeto de exemplo utilizando FastAPI.
 
 1. Inicie o servidor FastAPI:
     ```bash
-    uvicorn main:app --reload
+    fastapi run .\main.py
     ```
 
 2. Acesse a documentação interativa da API:
@@ -46,4 +46,6 @@ Este é um projeto de exemplo utilizando FastAPI.
 - `requirements.txt`: Arquivo com as dependências do projeto.
 - `models.py`: Define os modelos de dados utilizados pela aplicação.
 - `utils.py`: Funções utilitárias usadas na aplicação.
+- `/routers/definir.py`: Função para definir termo aeronáutico
+- `/routers/metar.py`: Função para interpretar METAR
 
