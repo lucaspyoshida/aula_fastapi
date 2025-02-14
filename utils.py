@@ -38,12 +38,21 @@ def commom_verificacao_api_token(api_token: str):
     
     
 def chamar_llm(messages):
-  response = client.chat.completions.create(
-      model="deepseek-chat",
-      messages=messages,
-      stream=False,
-      temperature=0
-  )
-  resposta = response.choices[0].message.content
-  return resposta
+    """
+    Chama o modelo de linguagem (LLM) para gerar uma resposta com base nas mensagens fornecidas.
+
+    Args:
+        messages (list): Uma lista de mensagens para enviar ao modelo de linguagem.
+
+    Returns:
+        str: A resposta gerada pelo modelo de linguagem.
+    """
+    response = client.chat.completions.create(
+        model="deepseek-chat",
+        messages=messages,
+        stream=False,
+        temperature=0
+    )
+    resposta = response.choices[0].message.content
+    return resposta
     

@@ -2,6 +2,7 @@ import json
 from utils import chamar_llm, obter_logger_e_configuracao
 from fastapi import APIRouter
 from models import DadosMetar, MetarData
+from fastapi import HTTPException
 
 logger = obter_logger_e_configuracao()
 
@@ -9,18 +10,21 @@ router = APIRouter()
 
 @router.post("/metar/v1", response_model = MetarData)
 def metar(dados_metar: DadosMetar):
-    """
-    Processa uma string METAR e retorna os dados decodificados.
+  """
+  Processa uma string METAR e retorna os dados decodificados.
 
-    Args:
-        dados_metar (DadosMetar): Objeto contendo a string METAR e a chave de acesso.
+  Args:
+      dados_metar (DadosMetar): Objeto contendo a string METAR e a chave de acesso.
 
-    Returns:
-        dict: Dados decodificados do METAR ou mensagem de erro se a chave for inválida.
+  Returns:
+      dict: Dados decodificados do METAR ou mensagem de erro se a chave for inválida.
     """
-    logger.info(f"METAR enviado: {dados_metar.metar}")
-    res = lermetar(dados_metar.metar)
-    return res
+  logger.info(f"METAR enviado: {dados_metar.metar}")
+  if "METAR" not in dados_metar.metar:
+    raise HTTPException(status_code=400, detail="A string fornecida não contém a palavra 'METAR'.")
+    return {"message": "METAR encontrado!"}   
+  res = lermetar(dados_metar.metar)
+  return res
 
 
 
@@ -73,6 +77,16 @@ Saída esperada JSON:
 """
 
 def lermetar(metar):
+  """
+  Analisa uma mensagem METAR e retorna os dados estruturados.
+  Args:
+    metar (str): A mensagem METAR a ser analisada.
+  Returns:
+    MetarData: Um objeto contendo os dados estruturados da mensagem METAR.
+    Em caso de erro de validação, retorna uma string com a mensagem de erro e a exceção.
+  Exceções:
+    Exception: Qualquer exceção que ocorra durante a análise da mensagem METAR.
+  """
   messages=[
       {"role": "system", "content": orientacoes},
       {"role":"assistant","content":exemplo},
