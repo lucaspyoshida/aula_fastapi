@@ -21,6 +21,7 @@ class MetarData(BaseModel):
     ponto_de_orvalho: str
     pressao: str
     texto: str
+    probpassaro: float 
     
 class DadosDefinir(BaseModel):
     termo: str

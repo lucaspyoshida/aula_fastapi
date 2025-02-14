@@ -3,6 +3,7 @@ from utils import chamar_llm, obter_logger_e_configuracao
 from fastapi import APIRouter
 from models import DadosMetar, MetarData
 from fastapi import HTTPException
+from modelo.metarprob import acharprob
 import re
 
 logger = obter_logger_e_configuracao()
@@ -11,7 +12,7 @@ router = APIRouter()
 
 @router.post("/metar/v1", response_model = MetarData,
             summary="Processa uma mensagem METAR",
-            description="Recebe uma string METAR, decodifica e retorna os dados estruturados em formato JSON.",
+            description="Recebe uma string METAR, decodifica e retorna os dados estruturados em formato JSON. Os dados do retornados incluem informações detalhadas sobre as condições meteorológicas em uma estação específica, como tipo de relatório, estação, data e hora, vento, visibilidade, nuvens, temperatura, ponto de orvalho, pressão, texto descritivo e a probabilidade de avistamento de pássaros.",
             tags=["Meteorologia"]
             )
 def metar(dados_metar: DadosMetar):
@@ -36,7 +37,7 @@ def metar(dados_metar: DadosMetar):
 
   if not re.search(padrao_icao, dados_metar.metar):
       raise HTTPException(status_code=400, detail="Código ICAO não encontrado.")
-
+       
 
   res = lermetar(dados_metar.metar)
   return res
@@ -66,6 +67,7 @@ Instruções:
 3. Retorne a resposta em formato JSON conforme o exemplo abaixo.
 4. Caso um campo não esteja presente na mensagem, atribua o valor `null` ou uma indicação apropriada para aquele campo.
 5. Retorne apenas o JSON, não coloque nenhuma informação antes ou após o JSON de retorno.
+6. O retorno tem que começar com { e terminar com }.
 """
 
 exemplo = """
@@ -113,6 +115,10 @@ def lermetar(metar):
 
   try:
       data = json.loads(resposta)
+      prob = acharprob(metar)
+      logger.info(f"Probabilidade de precipitação: {prob}")
+      data["probpassaro"] = prob
+
       metar_data = MetarData(**data)
       return metar_data
   except Exception as e:
