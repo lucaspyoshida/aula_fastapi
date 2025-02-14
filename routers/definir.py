@@ -1,10 +1,3 @@
-import sys
-import os
-
-# Adiciona o diretório pai ao sys.path para que o Python possa encontrar o módulo utils.py
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-
 from utils import chamar_llm, obter_logger_e_configuracao
 from models import ListaDefinicoes, DadosDefinir
 from fastapi import APIRouter
@@ -15,6 +8,15 @@ logger = obter_logger_e_configuracao()
 
 @router.post("/definir/v1", response_model = ListaDefinicoes)
 def definir(dados: DadosDefinir):
+    """
+    Define um termo solicitado.
+
+    Args:
+      dados (DadosDefinir): Objeto contendo o termo a ser definido.
+
+    Returns:
+      str: Definição do termo solicitado.
+    """
     logger.info(f"Termo solicitado: {dados.termo}")
     res = definirtermo(dados.termo)
     return res
@@ -43,12 +45,24 @@ Orientação mais importante: retorne apenas o JSON, não coloque nenhuma inform
 """
 
 def definirtermo(termo):
+    """
+    Define o significado de um termo fornecido.
+    Args:
+      termo (str): O termo que se deseja definir.
+    Returns:
+      dict: Um dicionário contendo as definições do termo.
+    """
     messages=[
         {"role": "system", "content": orientacoes},
         {"role": "user", "content": "Dê o significado de: " + termo},
     ]
 
     resposta = chamar_llm(messages)
-    data = json.loads(resposta)
+    try:
+      data = json.loads(resposta)
+      if not isinstance(data, list) or not all("contexto" in item and "significado" in item for item in data):
+        raise ValueError      
+    except:
+      raise HTTPException(status_code=500, detail="Erro ao processar a resposta do LLM. Verifique o formato informado.")
     return {"definicoes": data}
  
