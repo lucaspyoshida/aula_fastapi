@@ -57,6 +57,8 @@ Você é um especialista aeronáutico com profundo conhecimento técnico e exper
 
 Orientação mais importante: retorne apenas o JSON, não coloque nenhuma informação antes ou após o JSON de retorno.
 
+Caso o termo fornecido não seja reconhecido como um termo aeronático, retorne um objeto vazio "{}".
+
 """
 
 
