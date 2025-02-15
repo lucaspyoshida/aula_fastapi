@@ -1,8 +1,8 @@
-import sys
-import os
+# import sys
+# import os
 
-# Adiciona o diretório pai ao sys.path para que o Python possa encontrar o módulo utils.py
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# # Adiciona o diretório pai ao sys.path para que o Python possa encontrar o módulo utils.py
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 from utils import chamar_llm, obter_logger_e_configuracao, extrair_json
