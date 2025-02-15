@@ -1,5 +1,7 @@
 {
     "horusecCliFalsePositiveHashes": [
-        "92dc51ac392447c37f47e31a05eda5e1551410dd73f5cfa304bbe19801a1b973"
+        "92dc51ac392447c37f47e31a05eda5e1551410dd73f5cfa304bbe19801a1b973",
+        "b3eea2acd8dda2b202b1ead46268a296f8c0303dbdf42514af3fa334611c46cc",
+        "db8a03b3b7c4e2f0b00f1f31c11dc32a6d01469d9b0ede23c174099fcbdab3cd"
     ]
 }
