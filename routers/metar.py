@@ -10,38 +10,41 @@ logger = obter_logger_e_configuracao()
 
 router = APIRouter()
 
-@router.post("/metar/v1", response_model = MetarData,
-            summary="Processa uma mensagem METAR",
-            description="Recebe uma string METAR, decodifica e retorna os dados estruturados em formato JSON. Os dados do retornados incluem informações detalhadas sobre as condições meteorológicas em uma estação específica, como tipo de relatório, estação, data e hora, vento, visibilidade, nuvens, temperatura, ponto de orvalho, pressão, texto descritivo e a probabilidade de avistamento de pássaros.",
-            tags=["Meteorologia"]
-            )
+
+@router.post(
+    "/metar/v1",
+    response_model=MetarData,
+    summary="Processa uma mensagem METAR",
+    description="Recebe uma string METAR, decodifica e retorna os dados estruturados em formato JSON. Os dados do retornados incluem informações detalhadas sobre as condições meteorológicas em uma estação específica, como tipo de relatório, estação, data e hora, vento, visibilidade, nuvens, temperatura, ponto de orvalho, pressão, texto descritivo e a probabilidade de avistamento de pássaros.",
+    tags=["Meteorologia"],
+)
 def metar(dados_metar: DadosMetar):
-  """
-  Processa uma string METAR e retorna os dados decodificados.
-
-  Args:
-      dados_metar (DadosMetar): Objeto contendo a string METAR.
-
-  Returns:
-      dict: Dados decodificados do METAR e um texto interpretando a mensagem.
-      
-  Raises:
-    HTTPException: Se a string fornecida não contiver a palavra 'METAR'.
-    HTTPException: Se o formato do METAR for inválido (não começar com um identificador ICAO de 4 letras).      
     """
-  logger.info(f"METAR enviado: {dados_metar.metar}")
-  if "METAR" not in dados_metar.metar:
-    raise HTTPException(status_code=400, detail="A string fornecida não contém a palavra 'METAR'.")
+    Processa uma string METAR e retorna os dados decodificados.
 
-  padrao_icao = r"\s[A-Z]{4}\s"  # Quatro letras maiúsculas seguidas de espaço
+    Args:
+        dados_metar (DadosMetar): Objeto contendo a string METAR.
 
-  if not re.search(padrao_icao, dados_metar.metar):
-      raise HTTPException(status_code=400, detail="Código ICAO não encontrado.")
-       
+    Returns:
+        dict: Dados decodificados do METAR e um texto interpretando a mensagem.
 
-  res = lermetar(dados_metar.metar)
-  return res
+    Raises:
+      HTTPException: Se a string fornecida não contiver a palavra 'METAR'.
+      HTTPException: Se o formato do METAR for inválido (não começar com um identificador ICAO de 4 letras).
+    """
+    logger.info(f"METAR enviado: {dados_metar.metar}")
+    if "METAR" not in dados_metar.metar:
+        raise HTTPException(
+            status_code=400, detail="A string fornecida não contém a palavra 'METAR'."
+        )
 
+    padrao_icao = r"\s[A-Z]{4}\s"  # Quatro letras maiúsculas seguidas de espaço
+
+    if not re.search(padrao_icao, dados_metar.metar):
+        raise HTTPException(status_code=400, detail="Código ICAO não encontrado.")
+
+    res = lermetar(dados_metar.metar)
+    return res
 
 
 orientacoes = """
@@ -71,6 +74,11 @@ Instruções:
 """
 
 exemplo = """
+
+
+Caso a mensagem METAR fornecida seja inválida ou não siga o padrão esperado, não retorne nenhum JSON. Retorne apenas a palavra ERRO.
+
+
 Exemplo de METAR:
 
 METAR SBGR 052000Z 35006KT 9999 FEW049 BKN080 25/20 Q1014=
@@ -91,36 +99,48 @@ Saída esperada JSON:
   "pressao": "1014",
   "texto": "Em SBGR, às 20:00Z do dia 05, vento de 350° a 06 nós, visibilidade acima de 10 km, algumas nuvens a 4.900 pés e céu parcialmente encoberto a 8.000 pés, temperatura de 25°C, ponto de orvalho a 20°C e pressão de 1014 hPa."
 }
+
+A saída tem que conter todos os campos descritos no exemplo acima, com os valores correspondentes à mensagem METAR fornecida. Caso algum dado não esteja presente na mensagem, atribua o valor `null` ou uma indicação apropriada para aquele campo.
+
+Observe que há um campo "texto", que é uma descrição textual da mensagem.
+
+Se você está retornando um json, ou seja, a mensagem enviada foi um METAR válido, assegure-se de que há no JSON a chave "texto" com a descrição textual da mensagem METAR.
+
 """
 
+
 def lermetar(metar):
-  """
-  Analisa uma mensagem METAR e retorna os dados estruturados.
-  Args:
-    metar (str): A mensagem METAR a ser analisada.
-  Returns:
-    MetarData: Um objeto contendo os dados estruturados da mensagem METAR.
-    Em caso de erro de validação, retorna uma string com a mensagem de erro e a exceção.
-  Exceções:
-    Exception: Qualquer exceção que ocorra durante a análise da mensagem METAR.
-  """
-  messages=[
-      {"role": "system", "content": orientacoes},
-      {"role":"assistant","content":exemplo},
-      {"role": "user", "content": "Analise a mensagem a seguir: " + metar},
-  ]
+    """
+    Analisa uma mensagem METAR e retorna os dados estruturados.
+    Args:
+      metar (str): A mensagem METAR a ser analisada.
+    Returns:
+      MetarData: Um objeto contendo os dados estruturados da mensagem METAR.
+      Em caso de erro de validação, retorna uma string com a mensagem de erro e a exceção.
+    Exceções:
+      Exception: Qualquer exceção que ocorra durante a análise da mensagem METAR.
+    """
+    messages = [
+        {"role": "system", "content": orientacoes},
+        {"role": "assistant", "content": exemplo},
+        {"role": "user", "content": "Analise a mensagem a seguir: " + metar},
+    ]
 
+    resposta = chamar_llm(messages)
 
-  resposta = chamar_llm(messages)
-
-  try:
-      resposta = extrair_json(resposta)
-      data = json.loads(resposta)
-      prob = acharprob(metar)
-      logger.info(f"Probabilidade de precipitação: {prob}")
-      data["probpassaro"] = prob
-
-      metar_data = MetarData(**data)
-      return metar_data
-  except Exception as e:
-      return "Erro de validação:", e
+    if "ERRO" in resposta:
+        raise HTTPException(
+            status_code=400,
+            detail="Erro ao interpretar o METAR. Revise o formato da mensagem.",
+        )
+    try:
+        resposta = extrair_json(resposta)
+        data = json.loads(resposta)
+        prob = acharprob(metar)
+        logger.info(f"Probabilidade de precipitação: {prob}")
+        data["probpassaro"] = float(prob)
+        logger.info(f"Resposta em JSON: {data}")
+        metar_data = MetarData(**data)
+        return metar_data
+    except Exception as e:
+        return "Erro de validação:", e

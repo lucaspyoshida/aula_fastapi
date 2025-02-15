@@ -2,7 +2,8 @@ import joblib
 import os
 import re
 from datetime import datetime
-import numpy as np       
+import numpy as np
+
 
 def acharprob(metar):
     # Ajuste para cobrir CLR e tornar a altitude opcional (\d{3})?
@@ -38,11 +39,10 @@ def acharprob(metar):
             return ("CLR", 0)
         # Ordenar por altura, considerando que CLR não tem número
         sorted_clouds = sorted(
-            cloud_list,
-            key=lambda x: int(x[1]) if x[1].isdigit() else 999
+            cloud_list, key=lambda x: int(x[1]) if x[1].isdigit() else 999
         )
         lowest_layer = sorted_clouds[0]
-        
+
         coverage = lowest_layer[0]
         altitude_str = lowest_layer[1] if len(lowest_layer) > 1 else ""
         if altitude_str and altitude_str.isdigit():
@@ -53,30 +53,45 @@ def acharprob(metar):
         return (coverage, cloud_altitude)
 
     # Extrair dados do METAR via regex
-    extracted = {field: re.findall(pattern, metar) for field, pattern in regex_patterns.items()}
+    extracted = {
+        field: re.findall(pattern, metar) for field, pattern in regex_patterns.items()
+    }
     date = datetime.now().date()
     # time = datetime.now().time()
     time = datetime.strptime(extracted["horario"][0], "%H%M").time()
     processed = {
-        "vento_direcao": extracted["vento_direcao"][0] if extracted["vento_direcao"] else None,
-        "vento_velocidade": extracted["vento_velocidade"][0] if extracted["vento_velocidade"] else None,
-        "visibilidade": extracted["visibilidade"][0] if extracted["visibilidade"] else None,
-        "cobertura_nuvens": classify_cloud_cover_with_altitude(extracted["cobertura_nuvens"])[0],
-        "altura_nuvens": classify_cloud_cover_with_altitude(extracted["cobertura_nuvens"])[1],
-        "temperatura": extracted["temperatura"][0][0] if extracted["temperatura"] else None,
-        "precipitacao": classify_precipitation([p[0] for p in extracted["precipitacao"]]),
+        "vento_direcao": extracted["vento_direcao"][0]
+        if extracted["vento_direcao"]
+        else None,
+        "vento_velocidade": extracted["vento_velocidade"][0]
+        if extracted["vento_velocidade"]
+        else None,
+        "visibilidade": extracted["visibilidade"][0]
+        if extracted["visibilidade"]
+        else None,
+        "cobertura_nuvens": classify_cloud_cover_with_altitude(
+            extracted["cobertura_nuvens"]
+        )[0],
+        "altura_nuvens": classify_cloud_cover_with_altitude(
+            extracted["cobertura_nuvens"]
+        )[1],
+        "temperatura": extracted["temperatura"][0][0]
+        if extracted["temperatura"]
+        else None,
+        "precipitacao": classify_precipitation(
+            [p[0] for p in extracted["precipitacao"]]
+        ),
         "qnh": extracted["qnh"][0] if extracted["qnh"] else None,
     }
 
     # Carregar modelo e encoders
     model_dir = os.path.dirname(__file__)
-    model_path = os.path.join(model_dir, 'bird_model.pkl')
+    model_path = os.path.join(model_dir, "bird_model.pkl")
     model = joblib.load(model_path)
 
-    le_cobertura = joblib.load(os.path.join(model_dir, 'le_cobertura.pkl'))
-    le_precip = joblib.load(os.path.join(model_dir, 'le_precip.pkl'))
-    le_localidade = joblib.load(os.path.join(model_dir, 'le_localidade.pkl'))
-    le_target = joblib.load(os.path.join(model_dir, 'le_target.pkl'))
+    le_cobertura = joblib.load(os.path.join(model_dir, "le_cobertura.pkl"))
+    le_precip = joblib.load(os.path.join(model_dir, "le_precip.pkl"))
+    le_localidade = joblib.load(os.path.join(model_dir, "le_localidade.pkl"))
 
     # Funções para tratar valores nulos / parsear floats
     def safe_str(x):
@@ -85,7 +100,7 @@ def acharprob(metar):
     def safe_float(x):
         try:
             return float(x)
-        except:
+        except (ValueError, TypeError):
             return 0.0
 
     # Ajuste de cobertura
@@ -127,25 +142,24 @@ def acharprob(metar):
     minute = time.minute
 
     features = [
-        safe_float(processed['vento_direcao']),
-        safe_float(processed['vento_velocidade']),
-        safe_float(processed['visibilidade']),
+        safe_float(processed["vento_direcao"]),
+        safe_float(processed["vento_velocidade"]),
+        safe_float(processed["visibilidade"]),
         float(cobertura_enc),
-        safe_float(processed['altura_nuvens']),
-        safe_float(processed['temperatura']),
+        safe_float(processed["altura_nuvens"]),
+        safe_float(processed["temperatura"]),
         float(precip_enc),
-        safe_float(processed['qnh']),
+        safe_float(processed["qnh"]),
         float(airport_enc),
         float(day),
         float(weekday),
         float(hour),
-        float(minute)
+        float(minute),
     ]
 
     final_features = np.array(features).reshape(1, -1)
 
     # Obter probabilidade da classe "1" (avistamento)
     probability = model.predict_proba(final_features)[0][1] * 100
-
 
     return round(probability, 2)

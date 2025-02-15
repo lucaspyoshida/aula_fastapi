@@ -22,6 +22,6 @@ repos:
   hooks:
     - id: update-requirements
       name: Update requirements.txt
-      entry: python -m pip freeze > requirements.txt
+      entry: python3 -m pip freeze > requirements.txt
       language: system
       pass_filenames: false

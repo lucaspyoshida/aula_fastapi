@@ -8,7 +8,9 @@ load_dotenv()
 
 API_TOKEN = os.getenv("API_TOKEN")
 
-client = OpenAI(api_key=os.getenv("API_KEY"), base_url="https://api.deepseek.com")
+# client = OpenAI(api_key=os.getenv("API_KEY"), base_url="https://api.deepseek.com")
+client = OpenAI(api_key=os.getenv("API_KEY"))
+
 
 def obter_logger_e_configuracao():
     """
@@ -23,6 +25,7 @@ def obter_logger_e_configuracao():
     logger = logging.getLogger("fastapi")
     return logger
 
+
 def commom_verificacao_api_token(api_token: str):
     """
     Verifica se o token da API fornecido é válido.
@@ -35,8 +38,8 @@ def commom_verificacao_api_token(api_token: str):
     """
     if api_token != API_TOKEN:
         raise HTTPException(status_code=401, detail="Token inválido")
-    
-    
+
+
 def chamar_llm(messages):
     """
     Chama o modelo de linguagem (LLM) para gerar uma resposta com base nas mensagens fornecidas.
@@ -47,28 +50,55 @@ def chamar_llm(messages):
     Returns:
         str: A resposta gerada pelo modelo de linguagem.
     """
+    # response = client.chat.completions.create(
+    #     model="deepseek-chat",
+    #     messages=messages,
+    #     stream=False,
+    #     temperature=0
+    # )
     response = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=messages,
-        stream=False,
-        temperature=0
+        model="gpt-4o-mini-2024-07-18", messages=messages, stream=False, temperature=0
     )
     resposta = response.choices[0].message.content
     logger = obter_logger_e_configuracao()
     logger.info(f"Resposta LLM: {resposta}")
     return resposta
-    
+
+
 def extrair_json(texto):
-    inicio = texto.find('{')
-    if inicio == -1:
-        return None  # Não encontrou uma chave de abertura
+    # Procura a primeira ocorrência de '{' ou '['
+    pos_objeto = texto.find("{")
+    pos_array = texto.find("[")
+
+    # Se nenhum deles for encontrado, retorna None
+    if pos_objeto == -1 and pos_array == -1:
+        return None
+
+    # Determina qual posição vem primeiro (a que for válida)
+    if pos_objeto == -1:
+        inicio = pos_array
+    elif pos_array == -1:
+        inicio = pos_objeto
+    else:
+        inicio = min(pos_objeto, pos_array)
+
+    # Define os delimitadores de abertura e fechamento
+    if texto[inicio] == "{":
+        abertura = "{"
+        fechamento = "}"
+    elif texto[inicio] == "[":
+        abertura = "["
+        fechamento = "]"
+    else:
+        return None
 
     contador = 0
     for i in range(inicio, len(texto)):
-        if texto[i] == '{':
+        if texto[i] == abertura:
             contador += 1
-        elif texto[i] == '}':
+        elif texto[i] == fechamento:
             contador -= 1
+            # Quando o contador retorna a zero, encontramos o fechamento correspondente
             if contador == 0:
-                return texto[inicio:i+1]
+                return texto[inicio : i + 1]
     return None
